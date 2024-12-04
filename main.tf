@@ -36,7 +36,7 @@ provider "azurerm" {
 
 resource "azurerm_resource_group" "main" {
   name     = "resource-group-${var.resources_suffix}"
-  location = "eastus2"
+  location = var.location
 }
 
 resource "azurerm_service_plan" "consumption" {
@@ -44,7 +44,7 @@ resource "azurerm_service_plan" "consumption" {
   resource_group_name = azurerm_resource_group.main.name
   location            = azurerm_resource_group.main.location
   os_type             = "Linux"
-  sku_name            = "P1v3"
+  sku_name            = "P0v3"
 }
 
 resource "azurerm_application_insights" "insights" {
