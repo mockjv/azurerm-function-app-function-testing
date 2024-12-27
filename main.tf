@@ -72,9 +72,9 @@ resource "azurerm_linux_function_app" "func_app" {
 
   site_config {
     application_stack {
-      python_version = 3.12
+      //python_version = 3.12
       //powershell_core_version = 7
-      //node_version = "~20"
+      node_version = "20"
     }
     application_insights_key               = azurerm_application_insights.insights.instrumentation_key
     application_insights_connection_string = azurerm_application_insights.insights.connection_string
@@ -85,11 +85,11 @@ resource "azurerm_linux_function_app" "func_app" {
 resource "azurerm_function_app_function" "func_app_func" {
   name            = "func"
   function_app_id = azurerm_linux_function_app.func_app.id
-  language        = "Python"
+  language        = "Javascript"
 
   file {
     name    = "func.py"
-    content = file("funcs/func.py")
+    content = file("funcs/func.js")
   }
 
   config_json = jsonencode({
