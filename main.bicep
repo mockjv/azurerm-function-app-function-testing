@@ -1,10 +1,11 @@
 targetScope = 'subscription'
 
 param resources_suffix string
+param location string
 
 resource resourceGroup 'Microsoft.Resources/resourceGroups@2024-03-01' = {
   name: 'resource-group-${resources_suffix}'
-  location: 'eastus'
+  location: location
 }
 
 module services './services.bicep' = {
@@ -12,6 +13,6 @@ module services './services.bicep' = {
   name: 'services'
   params: {
     resources_suffix: resources_suffix
-    location: 'eastus'
+    location: location
   }
 }

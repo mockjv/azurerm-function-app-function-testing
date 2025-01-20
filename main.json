@@ -1,0 +1,166 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.32.4.45862",
+      "templateHash": "8914849498486626225"
+    }
+  },
+  "parameters": {
+    "resources_suffix": {
+      "type": "string"
+    },
+    "location": {
+      "type": "string"
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Resources/resourceGroups",
+      "apiVersion": "2024-03-01",
+      "name": "[format('resource-group-{0}', parameters('resources_suffix'))]",
+      "location": "[parameters('location')]"
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "services",
+      "resourceGroup": "[format('resource-group-{0}', parameters('resources_suffix'))]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "resources_suffix": {
+            "value": "[parameters('resources_suffix')]"
+          },
+          "location": {
+            "value": "[parameters('location')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.32.4.45862",
+              "templateHash": "2053631826020596241"
+            }
+          },
+          "parameters": {
+            "resources_suffix": {
+              "type": "string"
+            },
+            "location": {
+              "type": "string"
+            }
+          },
+          "variables": {
+            "$fxv#0": "module.exports = async function (context, req) {\n  context.res = {\n    body: \"testing 1...2...3...\",\n  };\n};\n"
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Storage/storageAccounts",
+              "apiVersion": "2023-05-01",
+              "name": "[format('stor{0}', parameters('resources_suffix'))]",
+              "location": "[parameters('location')]",
+              "sku": {
+                "name": "Standard_LRS"
+              },
+              "kind": "StorageV2"
+            },
+            {
+              "type": "Microsoft.Web/serverfarms",
+              "apiVersion": "2024-04-01",
+              "name": "[format('app-service-plan-{0}', parameters('resources_suffix'))]",
+              "location": "[parameters('location')]",
+              "sku": {
+                "name": "P1v3",
+                "tier": "Dynamic"
+              },
+              "properties": {}
+            },
+            {
+              "type": "Microsoft.Web/sites",
+              "apiVersion": "2024-04-01",
+              "name": "[format('func-app-{0}', parameters('resources_suffix'))]",
+              "location": "[parameters('location')]",
+              "kind": "functionapp",
+              "properties": {
+                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', format('app-service-plan-{0}', parameters('resources_suffix')))]",
+                "siteConfig": {
+                  "appSettings": [
+                    {
+                      "name": "AzureWebJobsStorage",
+                      "value": "[format('DefaultEndpointsProtocol=https;AccountName={0};EndpointSuffix={1};AccountKey={2}', format('stor{0}', parameters('resources_suffix')), environment().suffixes.storage, listKeys(resourceId('Microsoft.Storage/storageAccounts', format('stor{0}', parameters('resources_suffix'))), '2023-05-01').keys[0].value)]"
+                    },
+                    {
+                      "name": "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING",
+                      "value": "[format('DefaultEndpointsProtocol=https;AccountName={0};EndpointSuffix={1};AccountKey={2}', format('stor{0}', parameters('resources_suffix')), environment().suffixes.storage, listKeys(resourceId('Microsoft.Storage/storageAccounts', format('stor{0}', parameters('resources_suffix'))), '2023-05-01').keys[0].value)]"
+                    },
+                    {
+                      "name": "FUNCTIONS_WORKER_RUNTIME",
+                      "value": "node"
+                    },
+                    {
+                      "name": "FUNCTIONS_EXTENSION_VERSION",
+                      "value": "~4"
+                    },
+                    {
+                      "name": "WEBSITE_NODE_DEFAULT_VERSION",
+                      "value": "~20"
+                    }
+                  ]
+                },
+                "httpsOnly": true
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Web/serverfarms', format('app-service-plan-{0}', parameters('resources_suffix')))]",
+                "[resourceId('Microsoft.Storage/storageAccounts', format('stor{0}', parameters('resources_suffix')))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Web/sites/functions",
+              "apiVersion": "2024-04-01",
+              "name": "[format('{0}/{1}', format('func-app-{0}', parameters('resources_suffix')), 'func')]",
+              "properties": {
+                "config": {
+                  "disabled": false,
+                  "bindings": [
+                    {
+                      "name": "req",
+                      "type": "httpTrigger",
+                      "direction": "in",
+                      "authLevel": "function",
+                      "methods": [
+                        "get"
+                      ]
+                    },
+                    {
+                      "name": "res",
+                      "type": "http",
+                      "direction": "out"
+                    }
+                  ]
+                },
+                "files": {
+                  "index.js": "[variables('$fxv#0')]"
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', format('func-app-{0}', parameters('resources_suffix')))]"
+              ]
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', format('resource-group-{0}', parameters('resources_suffix')))]"
+      ]
+    }
+  ]
+}

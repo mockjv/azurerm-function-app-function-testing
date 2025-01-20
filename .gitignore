@@ -38,3 +38,4 @@ terraform.rc
 tfplan
 .terraform.lock.hcl
 .bicepparam
+parameters.json
