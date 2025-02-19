@@ -79,7 +79,7 @@
               "name": "[format('app-service-plan-{0}', parameters('resources_suffix'))]",
               "location": "[parameters('location')]",
               "sku": {
-                "name": "P1v3",
+                "name": "Y1",
                 "tier": "Dynamic"
               },
               "properties": {}
